@@ -1,3 +1,25 @@
+function! s:dedupe_vim_locations(items) abort
+  let l:seen = {}
+  let l:out = []
+
+  for l:item in a:items
+    let l:key = join([
+          \ l:item.filename,
+          \ l:item.lnum,
+          \ l:item.col,
+          \ get(l:item, 'end_lnum', ''),
+          \ get(l:item, 'end_col', ''),
+          \ ], ':')
+
+    if !has_key(l:seen, l:key)
+      let l:seen[l:key] = 1
+      call add(l:out, l:item)
+    endif
+  endfor
+
+  return l:out
+endfunction
+
 function! s:not_supported(what) abort
     return lsp#utils#error(printf("%s not supported for filetype '%s'", a:what, &filetype))
 endfunction
@@ -302,6 +324,9 @@ function! s:handle_location(ctx, server, type, data) abort "ctx = {counter, list
     if lsp#client#is_error(a:data['response']) || !has_key(a:data['response'], 'result')
         call lsp#utils#error('Failed to retrieve '. a:type . ' for ' . a:server . ': ' . lsp#client#error_message(a:data['response']))
     else
+        " let l:new = lsp#utils#location#_lsp_to_vim_list(a:data['response']['result'])
+        " let a:ctx['list'] = s:dedupe_vim_locations(a:ctx['list'] + l:new)
+        "" let a:ctx['list'] = a:ctx['list'] + lsp#utils#location#_lsp_to_vim_list(a:data['response']['result'])
         let a:ctx['list'] = a:ctx['list'] + lsp#utils#location#_lsp_to_vim_list(a:data['response']['result'])
     endif
 
