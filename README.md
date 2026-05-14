@@ -2,6 +2,23 @@
 
 Async [Language Server Protocol](https://github.com/Microsoft/language-server-protocol) plugin for vim8 and neovim.
 
+# Adaptations made
+
+```vimscript
+" The default lsp behaviour is to open a quickfix/location list
+"https://github.com/prabirshrestha/vim-lsp/pull/1140/changes#diff-5644b29c0f34f56ca832ab251585503f273b59b2149cf29c7a38c004c2bad69c
+" These overrides attempt to prevent these from happening
+function! MyLspQuickfix() abort
+  " botright copen
+endfunction
+
+function! MyLspLocationlist() abort
+  " botright lopen
+endfunction
+
+let g:Lsp_copen_funcref = function('MyLspQuickfix')
+let g:Lsp_lopen_funcref = function('MyLspLocationlist')
+```
 # Installing
 
 Install [vim-plug](https://github.com/junegunn/vim-plug) and then:
@@ -46,7 +63,7 @@ function! s:on_lsp_buffer_enabled() abort
 
     let g:lsp_format_sync_timeout = 1000
     autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
-    
+
     " refer to doc to add more commands
 endfunction
 
